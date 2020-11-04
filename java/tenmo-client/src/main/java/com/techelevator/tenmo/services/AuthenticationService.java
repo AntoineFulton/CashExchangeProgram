@@ -8,21 +8,55 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import com.techelevator.tenmo.dao.UserDAO;
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
 
 public class AuthenticationService {
 
     private String BASE_URL;
     private RestTemplate restTemplate = new RestTemplate();
+    private static String AUTH_TOKEN = "";
+    
 
     public AuthenticationService(String url) {
         this.BASE_URL = url;
     }
-
+    public double getBalance(String username)throws AuthenticationServiceException {
+    	double balance = 0;
+    	try {
+    		balance = restTemplate.exchange(BASE_URL + "balance/" + username, HttpMethod.GET, makeAuthEntity(),Double.class).getBody();  
+    	} catch (RestClientResponseException ex) {
+    		throw new AuthenticationServiceException(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+    	}
+    	return balance;
+    }
+    public User[] getAll() throws AuthenticationServiceException {
+    	User[] users = null;
+    	try {
+    	users = restTemplate.exchange(BASE_URL + "user", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
+    	} catch (RestClientResponseException ex){
+    		throw new AuthenticationServiceException(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+    	}
+    	return users;
+    }
+    
+    public HttpEntity makeAuthEntity() {
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setBearerAuth(AUTH_TOKEN);
+    	HttpEntity entity = new HttpEntity(headers);
+    	return entity;
+    }
+    
     public AuthenticatedUser login(UserCredentials credentials) throws AuthenticationServiceException {
         HttpEntity<UserCredentials> entity = createRequestEntity(credentials);
         return sendLoginRequest(entity);
@@ -80,4 +114,6 @@ public class AuthenticationService {
 		}
 		return message;
 	}
+	
+	
 }

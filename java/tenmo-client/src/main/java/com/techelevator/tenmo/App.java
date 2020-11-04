@@ -26,7 +26,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private ConsoleService console;
     private AuthenticationService authenticationService;
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
     	app.run();
     }
@@ -36,7 +36,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		this.authenticationService = authenticationService;
 	}
 
-	public void run() {
+	public void run(){
 		System.out.println("*********************");
 		System.out.println("* Welcome to TEnmo! *");
 		System.out.println("*********************");
@@ -67,9 +67,9 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		}
 	}
 
-	private void viewCurrentBalance() {
+	private void viewCurrentBalance() throws AuthenticationServiceException {
 		// TODO Auto-generated method stub
-		
+		System.out.println("current balance is : " + authenticationService.getBalance(currentUser.getUser().getUsername()));
 	}
 
 	private void viewTransferHistory() {
