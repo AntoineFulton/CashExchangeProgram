@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 
 @Service
@@ -92,6 +93,74 @@ public class UserSqlDAO implements UserDAO {
     }
     
     @Override
+    public BigDecimal transferMoney(int id, BigDecimal moneyAdded) {
+    	BigDecimal transferMoney = null;
+    	String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
+    			+ "VALUES (SELECT transfer_type_id FROM transfer WHERE transfer_type_id =(SELECT transfer_type_id FROM transfer_types WHERE transfer_type_desc = 'Send'), "
+    			+ "SELECT transfer_status_id FROM transfers WHERE transfer_status_id = (SELECT transfer_status_id FROM transfer_statuses WHERE transfer_status_desc = 'Approved'), "
+    			+ "SELECT account_from FROM transfers WHERE account_from = (SELECT account_id FROM accounts WHERE user_id = ?),"
+    			+ "SELECT account_to FROM transfers WHERE account_to = (SELECT account_id FROM accounts WHERE user_id = ?), ?";
+    	SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id, id, moneyAdded);
+    	if(result.next() ) {
+    		transferMoney = result.getBigDecimal("amount");
+    	}
+    	return transferMoney;
+    }
+    
+    @Override
+    public BigDecimal requestMoney(int id, BigDecimal amount) {
+    	BigDecimal requestMoney = null;
+    	String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
+    			+ "VALUES (SELECT transfer_type_id FROM transfer WHERE transfer_type_id =(SELECT transfer_type_id FROM transfer_types WHERE transfer_type_desc = 'Request'), "
+    			+ "SELECT transfer_status_id FROM transfers WHERE transfer_status_id = (SELECT transfer_status_id FROM transfer_statuses WHERE transfer_status_desc = 'Pending'), "
+    			+ "SELECT account_from FROM transfers WHERE account_from = (SELECT account_id FROM accounts WHERE user_id = ?),"
+    			+ "SELECT account_to FROM transfers WHERE account_to = (SELECT account_id FROM accounts WHERE user_id = ?), ?";
+    	SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id, id, amount);
+    	if(result.next() ) {
+    		requestMoney = result.getBigDecimal("amount");
+    	}
+    	return requestMoney;
+    }
+    
+    @Override
+    public BigDecimal viewPendingRequests(int id, BigDecimal amount) {
+    	BigDecimal viewPendingRequests = null;
+    	String sql = "SELECT * FROM transfers WHERE transfer_status_id = (SELECT transfer_status_id FROM transfer_statuses WHERE transfer_status_desc = 'Pending') "
+    			+ "AND transfer_type_id = (SELECT transfer_type_id FROM transfer_types WHERE trasnfer_type_desc = 'Request'";
+    	SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id, id, amount);
+    	if(result.next() ) {
+    		viewPendingRequests = result.getBigDecimal("amount");
+    	}
+    	return viewPendingRequests;
+    }
+    
+    @Override
+    public List<Transfer> viewTransfer(int id) {
+    	List<Transfer> transfers = new ArrayList<>();
+    	String sql = "SELECT * FROM transfer WHERE transfer_id = ?";
+    	SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
+    	
+    	while(result.next()) {
+    		Transfer transfer = mapRowToTransfer(result);
+    		transfers.add(transfer);
+    	}
+    	return transfers;
+    	
+    }
+    
+    @Override
+    public boolean createTransfer(Transfer transfer) {
+    	String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
+    			+ "VALUES (?, ?, ?, ?, ?)";
+    	return jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()) == 1;
+    }
+    
+    @Override
+    public List<Transfer> viewAllTransfers() {
+    	String sql = "SELECT * FROM transfers";
+    	return viewAllTransfers();
+    }
+    
     
 
     private User mapRowToUser(SqlRowSet rs) {
@@ -102,5 +171,16 @@ public class UserSqlDAO implements UserDAO {
         user.setActivated(true);
         user.setAuthorities("ROLE_USER");
         return user;
+    }
+    
+    private Transfer mapRowToTransfer(SqlRowSet rs) {
+    	Transfer transfer = new Transfer();
+    	transfer.setTransferId(rs.getInt("transfer_id"));
+    	transfer.setTransferTypeId(rs.getInt("transfer_type_id"));
+    	transfer.setTransferStatusId(rs.getInt("transfer_status_id"));
+    	transfer.setAccountFrom(rs.getInt("account_from"));
+    	transfer.setAccountTo(rs.getInt("account_to"));
+    	transfer.setAmount(rs.getBigDecimal("amount"));
+    	return transfer;
     }
 }

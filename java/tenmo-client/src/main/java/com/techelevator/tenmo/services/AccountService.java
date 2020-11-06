@@ -35,7 +35,6 @@ public class AccountService{
 	
 	//TODO: currentUser is coming up as null for some some
 	public BigDecimal getBalance(AuthenticatedUser currentUser) {
-		System.out.println(currentUser.getUser().getId());
 		BigDecimal balanceResponse = restTemplate.exchange(BASE_URL + "account/" + 
 										currentUser.getUser().getId(), HttpMethod.GET, authHeader(currentUser.getToken()), BigDecimal.class).getBody();
 		return balanceResponse;
@@ -53,7 +52,7 @@ public class AccountService{
 		HttpHeaders myHeader = new HttpHeaders();
 		myHeader.setBearerAuth(userToken);
 		HttpEntity entity = new HttpEntity<>(myHeader);
-		return entity;
+		return entity
 	}
 
 	
