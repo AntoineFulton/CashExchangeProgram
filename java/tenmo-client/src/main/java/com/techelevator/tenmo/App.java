@@ -81,7 +81,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	//TODO: It recognizes user per debug but once it reaches AccountService class it forgets who user is
 	private void viewCurrentBalance() throws AccountServiceException {
-		System.out.println("Current balance is : " + accountService.getBalance(AccountService.AUTH_TOKEN));
+		System.out.println("Current balance is : " + accountService.getBalance(currentUser));
 	}
 
 	private void viewTransferHistory() {

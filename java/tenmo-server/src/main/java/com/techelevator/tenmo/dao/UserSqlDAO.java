@@ -91,6 +91,8 @@ public class UserSqlDAO implements UserDAO {
     	return balance;
     }
     
+    @Override
+    
 
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();

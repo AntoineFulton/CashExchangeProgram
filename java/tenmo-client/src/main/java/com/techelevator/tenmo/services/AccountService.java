@@ -34,8 +34,10 @@ public class AccountService{
 	}
 	
 	//TODO: currentUser is coming up as null for some some
-	public BigDecimal getBalance(String userToken) {
-		BigDecimal balanceResponse = restTemplate.exchange(BASE_URL + "account/" + currentUser.getUser().getId(), HttpMethod.GET, authHeader(userToken), BigDecimal.class).getBody();
+	public BigDecimal getBalance(AuthenticatedUser currentUser) {
+		System.out.println(currentUser.getUser().getId());
+		BigDecimal balanceResponse = restTemplate.exchange(BASE_URL + "account/" + 
+										currentUser.getUser().getId(), HttpMethod.GET, authHeader(currentUser.getToken()), BigDecimal.class).getBody();
 		return balanceResponse;
 	}
 	
