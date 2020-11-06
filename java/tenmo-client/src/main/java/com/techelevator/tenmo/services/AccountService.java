@@ -39,13 +39,13 @@ public class AccountService{
 		return balanceResponse;
 	}
 	
-	private HttpEntity<String> makeUserEntity(String userToken) {
+	/*private HttpEntity<String> makeUserEntity(String userToken) {
 		HttpHeaders myHeader = new HttpHeaders();
 		myHeader.setContentType(MediaType.APPLICATION_JSON);
 		myHeader.setBearerAuth(AUTH_TOKEN);
 		HttpEntity<String> entity = new HttpEntity<>(userToken, myHeader);
 		return entity;
-	}
+	}*/
 	
 	private HttpEntity authHeader(String userToken) {
 		HttpHeaders myHeader = new HttpHeaders();

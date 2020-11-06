@@ -25,30 +25,13 @@ public class AuthenticationService {
 
     private String BASE_URL;
     private RestTemplate restTemplate = new RestTemplate();
-    private static String AUTH_TOKEN = "";
     
 
     public AuthenticationService(String url) {
         this.BASE_URL = url;
     }
    
-    public User[] getAll() throws AuthenticationServiceException {
-    	User[] users = null;
-    	try {
-    	users = restTemplate.exchange(BASE_URL + "user", HttpMethod.GET, makeAuthEntity(), User[].class).getBody();
-    	} catch (RestClientResponseException ex){
-    		throw new AuthenticationServiceException(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
-    	}
-    	return users;
-    }
-    
-    public HttpEntity makeAuthEntity() {
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setBearerAuth(AUTH_TOKEN);
-    	HttpEntity entity = new HttpEntity(headers);
-    	return entity;
-    }
-    
+  
     public AuthenticatedUser login(UserCredentials credentials) throws AuthenticationServiceException {
         HttpEntity<UserCredentials> entity = createRequestEntity(credentials);
         return sendLoginRequest(entity);
