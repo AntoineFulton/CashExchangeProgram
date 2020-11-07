@@ -5,7 +5,7 @@ import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
-
+import com.techelevator.tenmo.services.TransferService;
 import com.techelevator.view.ConsoleService;
 
 public class App {
@@ -28,18 +28,20 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private ConsoleService console;
     private AuthenticationService authenticationService;
     private AccountService accountService;
+    private TransferService transferService;
     
 
     public static void main(String[] args){
-    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new AccountService(API_BASE_URL));
+    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new AccountService(API_BASE_URL), new TransferService(API_BASE_URL));
     	app.run();
    
     }
 
-    public App(ConsoleService console, AuthenticationService authenticationService, AccountService accountService) {
+    public App(ConsoleService console, AuthenticationService authenticationService, AccountService accountService, TransferService transferService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
 		this.accountService = accountService;
+		this.transferService = transferService;
 	}
 
 	public void run(){
@@ -49,6 +51,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		
 		registerAndLogin();
 		AccountService.AUTH_TOKEN = currentUser.getToken();
+		TransferService.AUTH_TOKEN = currentUser.getToken();
 		mainMenu();
 	}
 
@@ -85,17 +88,20 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+		System.out.println("--- TRANSFER HISTORY ---");
+		System.out.println(transferService.viewAllTransfers(currentUser));
 		
 	}
 
 	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
+		System.out.println("--- Pending Requests ---");
+		System.out.println(transferService.getTransfer(currentUser.getUser().getId(), currentUser));
 		
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
+		System.out.println("--- Send Bucks ---");
+		System.out.println(transferService.createTransfer(currentUser));
 		
 	}
 

@@ -15,28 +15,33 @@ public class TransferService {
 	public static String AUTH_TOKEN = "";
 	private final String BASE_URL;
 	private AuthenticatedUser currentUser;
+	private Transfer transfer;
 	private RestTemplate restTemplate = new RestTemplate();
 	
-	public TransferService(String baseURL, AuthenticatedUser currentUser) {
+	public TransferService(String baseURL, AuthenticatedUser currentUser, Transfer transfer) {
 		this.BASE_URL = baseURL;
 		this.currentUser = currentUser;
+		this.transfer = transfer;
 	}
 	public TransferService(String baseURL) {
 		this.BASE_URL = baseURL;
 	}
 	
-	public boolean createTransfer(AuthenticatedUser currentUser) {
-		balanceResponse = restTemplate.exchange(BASE_URL + "transfer", HttpMethod.POST, authHeader(currentUser.getToken())).getBody();
+	public boolean createTransfer(Transfer transfer, AuthenticatedUser currentUser) {
+		boolean balanceResponse = restTemplate.exchange(BASE_URL + "transfer", HttpMethod.POST, authHeader(currentUser.getToken()), boolean.class).getBody();
+		return balanceResponse;
 	}
 	
 	public Transfer[] viewAllTransfers(AuthenticatedUser currentUser) {
-		Transfer[] transfer = null;
-		transfer = restTemplate.exchange(BASE_URL + "transfer", HttpMethod.GET, authHeader(currentUser.getToken()), Transfer[].class).getBody();
-		return transfer;
+		Transfer[] transfers = null;
+		transfers = restTemplate.exchange(BASE_URL + "transfer", HttpMethod.GET, authHeader(currentUser.getToken()), Transfer[].class).getBody();
+		return transfers;
 	}
 	
-	public void getTransfer(int id) {
-		
+	public Transfer[] getTransfer(int id, AuthenticatedUser currentUser) {
+		Transfer[] transfer = null;
+		transfer = restTemplate.exchange(BASE_URL + "transfer/" + currentUser.getUser().getId(), HttpMethod.GET, authHeader(currentUser.getToken()), Transfer[].class).getBody();
+		return transfer;
 	}
 	
 	

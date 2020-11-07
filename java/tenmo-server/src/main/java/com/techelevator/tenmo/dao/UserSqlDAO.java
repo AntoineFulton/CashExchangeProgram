@@ -137,7 +137,7 @@ public class UserSqlDAO implements UserDAO {
     @Override
     public List<Transfer> viewTransfer(int id) {
     	List<Transfer> transfers = new ArrayList<>();
-    	String sql = "SELECT * FROM transfer WHERE transfer_id = ?";
+    	String sql = "SELECT * FROM transfers WHERE transfer_id = ?";
     	SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
     	
     	while(result.next()) {

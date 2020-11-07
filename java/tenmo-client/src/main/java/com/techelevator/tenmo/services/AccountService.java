@@ -52,7 +52,7 @@ public class AccountService{
 		HttpHeaders myHeader = new HttpHeaders();
 		myHeader.setBearerAuth(userToken);
 		HttpEntity entity = new HttpEntity<>(myHeader);
-		return entity
+		return entity;
 	}
 
 	
