@@ -70,5 +70,7 @@ public class TransferController {
 		public void getTransfer(@PathVariable int id) {
 			userDao.viewTransfer(id);
 		}
+	
+
 
 }

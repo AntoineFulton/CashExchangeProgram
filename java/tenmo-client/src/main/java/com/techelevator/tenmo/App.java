@@ -1,11 +1,16 @@
 package com.techelevator.tenmo;
 
+import java.math.BigDecimal;
+import java.util.Scanner;
+
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.tenmo.services.TransferService;
+import com.techelevator.tenmo.services.UserService;
 import com.techelevator.view.ConsoleService;
 
 public class App {
@@ -29,19 +34,21 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private AuthenticationService authenticationService;
     private AccountService accountService;
     private TransferService transferService;
+    private UserService userService;
     
 
     public static void main(String[] args){
-    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new AccountService(API_BASE_URL), new TransferService(API_BASE_URL));
+    	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL), new AccountService(API_BASE_URL), new TransferService(API_BASE_URL), new UserService(API_BASE_URL));
     	app.run();
    
     }
 
-    public App(ConsoleService console, AuthenticationService authenticationService, AccountService accountService, TransferService transferService) {
+    public App(ConsoleService console, AuthenticationService authenticationService, AccountService accountService, TransferService transferService, UserService userService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
 		this.accountService = accountService;
 		this.transferService = transferService;
+		this.userService = userService;
 	}
 
 	public void run(){
@@ -52,6 +59,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		registerAndLogin();
 		AccountService.AUTH_TOKEN = currentUser.getToken();
 		TransferService.AUTH_TOKEN = currentUser.getToken();
+		UserService.AUTH_TOKEN = currentUser.getToken();
 		mainMenu();
 	}
 
@@ -89,7 +97,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewTransferHistory() {
 		System.out.println("--- TRANSFER HISTORY ---");
-		System.out.println(transferService.viewAllTransfers(currentUser));
+		System.out.println(transferService.viewAllTransfers(currentUser).toString());
 		
 	}
 
@@ -101,7 +109,33 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void sendBucks() {
 		System.out.println("--- Send Bucks ---");
-		System.out.println(transferService.createTransfer(currentUser));
+		User[] user = userService.viewAllUsers(currentUser);
+		String[] usernames = new String[user.length];
+		for(int i = 0; i < user.length; i++) {
+			usernames[i] = user[i].getUsername();
+		}
+		System.out.println("--- Choose the user you would like to send money to ---");
+		
+		String choice = (String)console.getChoiceFromOptions(usernames);
+		for(User u : user) {
+			
+			if(u.getUsername().equals(choice)) {
+				System.out.println("User ID" + "   |   " + "Name");
+				System.out.println(currentUser.getUser().getId() + "   |   " + currentUser.getUser().getUsername());
+				System.out.println(u.getId() + "   |   " + u.getUsername());
+			}
+			Scanner scan = new Scanner(System.in);
+			
+			System.out.println("Enter amount to be sent to recipient: ");
+			String thisAmount = scan.nextLine();
+			BigDecimal amount = new BigDecimal(thisAmount);
+			if(accountService.getBalance(currentUser).compareTo(amount) >= 0) {
+				transferService.createTransfer(2, 2, currentUser.getUser().getId(), u.getId(), amount, currentUser);
+			} else {
+				transferService.createTransfer(2, 3, currentUser.getUser().getId(), u.getId(), amount, currentUser);
+			}
+		}
+		//System.out.println(transferService.createTransfer(2, 2, currentUser.getUser().getId(), accountTo, amount, currentUser));
 		
 	}
 

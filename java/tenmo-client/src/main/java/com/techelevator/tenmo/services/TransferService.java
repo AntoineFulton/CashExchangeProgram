@@ -1,11 +1,14 @@
 package com.techelevator.tenmo.services;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
+
 
 import com.techelevator.tenmo.models.AuthenticatedUser;
 import com.techelevator.tenmo.models.Transfer;
@@ -27,9 +30,10 @@ public class TransferService {
 		this.BASE_URL = baseURL;
 	}
 	
-	public boolean createTransfer(Transfer transfer, AuthenticatedUser currentUser) {
-		boolean balanceResponse = restTemplate.exchange(BASE_URL + "transfer", HttpMethod.POST, authHeader(currentUser.getToken()), boolean.class).getBody();
-		return balanceResponse;
+	public Transfer createTransfer(int transferTypeId, int transferStatusId, int accountFrom,int accountTo, BigDecimal amount,  AuthenticatedUser currentUser) {
+		Transfer transfer = new Transfer(transferTypeId, transferStatusId, accountFrom, accountTo, amount);
+		restTemplate.exchange(BASE_URL + "transfer", HttpMethod.POST, makeTransferEntity(transfer, currentUser.getToken()), Transfer.class).getBody();
+		return transfer;
 	}
 	
 	public Transfer[] viewAllTransfers(AuthenticatedUser currentUser) {
@@ -43,6 +47,14 @@ public class TransferService {
 		transfer = restTemplate.exchange(BASE_URL + "transfer/" + currentUser.getUser().getId(), HttpMethod.GET, authHeader(currentUser.getToken()), Transfer[].class).getBody();
 		return transfer;
 	}
+	
+	 private HttpEntity<Transfer> makeTransferEntity(Transfer transfer, String userToken) {
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.APPLICATION_JSON);
+	        headers.setBearerAuth(userToken);
+	        HttpEntity<Transfer> entity = new HttpEntity<>(transfer, headers);
+	        return entity;
+	    }
 	
 	
 	private HttpEntity authHeader(String userToken) {

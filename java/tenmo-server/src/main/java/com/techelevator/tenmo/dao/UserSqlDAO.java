@@ -149,16 +149,38 @@ public class UserSqlDAO implements UserDAO {
     }
     
     @Override
-    public boolean createTransfer(Transfer transfer) {
+    public void createTransfer(Transfer transfer) {
     	String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
     			+ "VALUES (?, ?, ?, ?, ?)";
-    	return jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()) == 1;
+    	jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
     }
+    
+    
     
     @Override
     public List<Transfer> viewAllTransfers() {
+    	List<Transfer> transfers = new ArrayList<>();
     	String sql = "SELECT * FROM transfers";
-    	return viewAllTransfers();
+    	
+    	SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+    	while(results.next()) {
+    		Transfer transfer = mapRowToTransfer(results);
+    		transfers.add(transfer);
+    	}
+    	return transfers;
+    }
+    
+    @Override
+    public List<User> viewAllUsers() {
+    	List<User> users = new ArrayList<>();
+    	String sql = "SELECT * FROM users";
+    	
+    	SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+    	while(results.next()) {
+    		User user = mapRowToUser(results);
+    		users.add(user);
+    	}
+    	return users;
     }
     
     
