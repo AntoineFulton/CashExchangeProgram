@@ -149,10 +149,10 @@ public class UserSqlDAO implements UserDAO {
     }
     
     @Override
-    public void createTransfer(Transfer transfer) {
+    public boolean createTransfer(Transfer transfer) {
     	String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "
     			+ "VALUES (?, ?, ?, ?, ?)";
-    	jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
+    	return jdbcTemplate.update(sql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount()) == 1;
     }
     
     
@@ -181,6 +181,12 @@ public class UserSqlDAO implements UserDAO {
     		users.add(user);
     	}
     	return users;
+    }
+    
+    @Override
+    public void updateBalance(BigDecimal balance, int id) {
+    	String sql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+    	jdbcTemplate.update(sql, balance, id);
     }
     
     

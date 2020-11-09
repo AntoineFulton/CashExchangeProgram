@@ -26,9 +26,10 @@ public interface UserDAO {
 
 	BigDecimal viewPendingRequests(int id, BigDecimal amount);
 	
-	void createTransfer(Transfer transfer);
+	boolean createTransfer(Transfer transfer);
 	
 	List<Transfer> viewAllTransfers();
 	
 	List<User> viewAllUsers();
+	void updateBalance(BigDecimal balance, int id);
 }

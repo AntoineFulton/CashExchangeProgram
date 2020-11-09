@@ -53,7 +53,7 @@ public class TransferController {
 	
 	
 	//Create transfer
-	@RequestMapping(path = "/transfer", method = RequestMethod.POST)
+	@RequestMapping(path = "/transfer/", method = RequestMethod.POST)
 	public void createTransfer(@RequestBody Transfer transfer) {
 		userDao.createTransfer(transfer);
 	}

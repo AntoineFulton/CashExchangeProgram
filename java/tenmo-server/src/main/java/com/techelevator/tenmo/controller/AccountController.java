@@ -5,6 +5,7 @@ import java.security.Principal;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,11 @@ public class AccountController {
 	@RequestMapping(path = "/account/{id}", method = RequestMethod.GET) 
 	public BigDecimal getBalance(@PathVariable int id) {
 		return userDao.viewBalance(id);
+	}
+	
+	@RequestMapping(path = "/account/{id}", method = RequestMethod.PUT)
+	public void updateBalance(@RequestBody BigDecimal balance, @PathVariable int id) {
+		userDao.updateBalance(balance, id);
 	}
 	
 

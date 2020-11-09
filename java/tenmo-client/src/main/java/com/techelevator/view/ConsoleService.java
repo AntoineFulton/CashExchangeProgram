@@ -40,6 +40,7 @@ public class ConsoleService {
 		if (choice == null) {
 			out.println("\n*** " + userInput + " is not a valid option ***\n");
 		}
+		
 		return choice;
 	}
 
